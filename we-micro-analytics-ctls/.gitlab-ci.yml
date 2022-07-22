@@ -1,0 +1,44 @@
+image: jhonacevedo/serverless-python3.7:latest
+
+stages:
+  - deploy
+
+deploy_staging:
+  stage: deploy
+  environment:
+    name: develop
+  script:
+    - mkdir ~/.aws/
+    - touch ~/.aws/credentials
+    - printf "[eb-cli]\naws_access_key_id = %s\naws_secret_access_key = %s\n" "$AWS_ACCESS_KEY_ID" "$AWS_SECRET_ACCESS_KEY" >> ~/.aws/credentials
+    - touch ~/.aws/config
+    - printf "[profile eb-cli]\nregion=ap-us-east-2\noutput=json" >> ~/.aws/config
+    - npm install --no-optional
+    - CI=false npm run build
+    - pip3 install awscli
+    - aws s3 sync ./dist s3://"$BUCKET_NAME"   --include "*"  --cache-control no-cache   --content-encoding gzip  --delete
+    - aws s3 cp ./dist/index.html s3://"$BUCKET_NAME"   --content-encoding gzip --cache-control 'max-age=0, no-cache, no-store, must-revalidate'
+    - aws cloudfront create-invalidation --distribution-id ${DISTRIBUTION_ID} --paths "/*"
+  only:
+    - develop
+
+deploy_production:
+  stage: deploy
+  environment:
+    name: master
+  before_script:
+    - cat .env.prod > .env
+  script:
+    - mkdir ~/.aws/
+    - touch ~/.aws/credentials
+    - printf "[eb-cli]\naws_access_key_id = %s\naws_secret_access_key = %s\n" "$AWS_ACCESS_KEY_ID" "$AWS_SECRET_ACCESS_KEY" >> ~/.aws/credentials
+    - touch ~/.aws/config
+    - printf "[profile eb-cli]\nregion=ap-us-east-2\noutput=json" >> ~/.aws/config
+    - npm install --no-optional
+    - CI=false npm run build
+    - pip3 install awscli
+    - aws s3 sync ./dist s3://"$BUCKET_NAME"   --include "*"  --cache-control no-cache   --content-encoding gzip  --delete
+    - aws s3 cp ./dist/index.html s3://"$BUCKET_NAME"   --content-encoding gzip --cache-control 'max-age=0, no-cache, no-store, must-revalidate'
+    - aws cloudfront create-invalidation --distribution-id ${DISTRIBUTION_ID} --paths "/*"
+  only:
+    - master
