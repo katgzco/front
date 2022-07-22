@@ -7,9 +7,6 @@ import { useNavigate } from "react-router";
 import { LogInWrapper } from "./styles";
 // import UserExternalForm from './components/userExternalForm';
 
-// External
-import GoogleLogin from "react-google-login";
-
 // Assets
 import logo from "../../static/logo/habi.svg";
 import loginDecorationStart from "../../static/img/home/login-decoration-start.svg";
@@ -54,27 +51,6 @@ const LogIn = () => {
     dispatch(updateLoginData(dataLogin));
     localStorage.setItem("loginData", JSON.stringify(dataLogin));
     navigate(ROUTES.DASHBOARD);
-  };
-
-  const getSession = async () => {
-    return await new Promise((resolve, reject) => {
-      const user = UserPool.getCurrentUser();
-      if (user) {
-        user.getSession((err, session) => {
-          if (err) {
-            reject("no hay una session");
-          } else {
-            resolve(session);
-          }
-        });
-      } else {
-        reject("no hay un usuario");
-      }
-    });
-  };
-
-  const onRejectLogin = () => {
-    // navigate(ROUTES.DASHBOARD);
   };
 
   const handleLoginExternalUser = async ({ email, password }) => {
