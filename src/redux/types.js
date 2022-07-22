@@ -1,0 +1,10 @@
+const types = {
+    DATA_FOUND: "DATA_FOUND",
+    SHOW_LOADING: "SHOW_LOADING",
+    HIDE_LOADING: "HIDE_LOADING",
+    DATA_NOT_FOUND: "DATA_NOT_FOUND",
+    UPDATE_USER_LOGIN: "UPDATE_USER_LOGIN",
+};
+
+export default types;
+
